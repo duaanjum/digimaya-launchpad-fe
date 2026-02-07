@@ -1,0 +1,16 @@
+/* Google Fonts Imports for Digimaaya SpringBoard */
+@import url('https://fonts.googleapis.com/css2?family=Maven+Pro:wght@400;500;600;700&display=swap');
+
+/* System fonts fallbacks */
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+/* Maven Pro for numbers, stats, labels, and Web3 data */
+.font-maven-pro {
+  font-family: 'Maven Pro', sans-serif;
+}
