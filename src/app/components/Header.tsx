@@ -32,7 +32,7 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const { address, isConnected } = useAccount();
-  const { connect, connectors, error: connectError } = useConnect();
+  const { connect, connectors, error: connectError, reset: resetConnect } = useConnect();
   const {
     isAuthenticated,
     isLoading: isAuthLoading,
@@ -113,6 +113,7 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
     if (connector) {
       setConnectingId(connectorId);
       clearError();
+      resetConnect();
       connect({ connector });
     }
   };
@@ -126,6 +127,7 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
     if (!open) {
       setConnectingId(null);
       clearError();
+      resetConnect();
       if (needsRegistration) {
         cancelRegistration();
       }
@@ -146,9 +148,9 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
     : '';
 
   const displayError = authError || (connectError
-    ? connectError.message.includes('rejected')
+    ? connectError.message.includes('rejected') || connectError.message.includes('denied')
       ? 'Connection rejected. Please try again.'
-      : 'Failed to connect wallet. Please try again.'
+      : connectError.message
     : null);
 
   // Determine dialog content based on state
