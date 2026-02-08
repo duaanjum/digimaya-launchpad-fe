@@ -16,10 +16,8 @@ interface HeaderProps {
   onViewProfile?: () => void;
 }
 
-const WALLET_OPTIONS = [
-  { name: 'MetaMask', connectorId: 'injected' },
-  { name: 'WalletConnect', connectorId: 'walletConnect' },
-] as const;
+// Connector IDs to hide (duplicates / internal connectors)
+const HIDDEN_CONNECTOR_IDS = new Set(['injected']);
 
 export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -104,6 +102,11 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+
+  // Filter out duplicate/internal connectors — show EIP-6963 detected wallets
+  const visibleConnectors = connectors.filter(
+    (c) => !HIDDEN_CONNECTOR_IDS.has(c.id) || connectors.length === 1,
+  );
 
   const handleWalletConnect = (connectorId: string) => {
     const connector = connectors.find((c) => c.id === connectorId);
@@ -387,12 +390,12 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
                     Connect with Wallet
                   </h3>
                   <div className="space-y-2">
-                    {WALLET_OPTIONS.map((wallet) => {
-                      const isConnecting = connectingId === wallet.connectorId;
+                    {visibleConnectors.map((connector) => {
+                      const isConnecting = connectingId === connector.id;
                       return (
                         <button
-                          key={wallet.connectorId}
-                          onClick={() => handleWalletConnect(wallet.connectorId)}
+                          key={connector.uid}
+                          onClick={() => handleWalletConnect(connector.id)}
                           disabled={connectingId !== null || isAuthLoading}
                           className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
                         >
@@ -401,10 +404,12 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
                               className="w-5 h-5 animate-spin"
                               style={{ color: '#E3107A' }}
                             />
+                          ) : connector.icon ? (
+                            <img src={connector.icon} alt="" className="w-5 h-5 rounded" />
                           ) : (
                             <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
                           )}
-                          <span className="text-white flex-1">{wallet.name}</span>
+                          <span className="text-white flex-1">{connector.name}</span>
                           {isConnecting && (
                             <span className="text-xs text-gray-400">Connecting...</span>
                           )}
