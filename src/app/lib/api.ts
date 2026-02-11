@@ -436,6 +436,10 @@ async function verifyWalletWithApi(walletAddress: string, signature: string): Pr
 }
 
 export const authApi = {
+  /** GET /api/v1/wallet-auth/message – returns backend WALLET_AUTH_MESSAGE for display in wallet UI. */
+  getWalletAuthMessage: (): Promise<{ message: string }> =>
+    request<{ message: string }>('wallet-auth/message', { method: 'GET', skipAuth: true }),
+
   /** Step 2: POST /api/v1/wallet-auth/nonce with body { walletAddress }. Use returned `message` exactly for signing. */
   getNonce: (walletAddress: string): Promise<NonceData> =>
     request<NonceData>('wallet-auth/nonce', {

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAccount, useConnect } from 'wagmi';
 import { useAuth } from '@/app/hooks/useAuth';
-import { getGoogleAuthUrl } from '@/app/lib/api';
+import { getGoogleAuthUrl, authApi } from '@/app/lib/api';
 import digimaayaLogo from 'figma:asset/875cae2f20c002d2f45cd08d3c927dde653b100b.png';
 import { Menu, X, Wallet, User, LogOut, ChevronDown, Loader2 } from 'lucide-react';
 import {
@@ -52,6 +52,8 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
   // Registration form state
   const [regEmail, setRegEmail] = useState('');
   const [regUserName, setRegUserName] = useState('');
+  // Wallet auth message from backend (GET /api/v1/wallet-auth/message) for display in wallet UI
+  const [walletAuthMessage, setWalletAuthMessage] = useState<string | null>(null);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -113,6 +115,23 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
       setConnectingId(null);
     }
   }, [connectError]);
+
+  // Fetch wallet auth message from backend when login dialog opens (for display in Connect Wallet step)
+  useEffect(() => {
+    if (!isLoginDialogOpen) return;
+    let cancelled = false;
+    authApi
+      .getWalletAuthMessage()
+      .then(({ message }) => {
+        if (!cancelled) setWalletAuthMessage(message);
+      })
+      .catch(() => {
+        if (!cancelled) setWalletAuthMessage(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isLoginDialogOpen]);
 
   const navLinks = [
     { label: 'Live Sales', href: '#live-sales' },
@@ -440,6 +459,12 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
               </DialogHeader>
 
               <div className="space-y-4 py-4">
+                {walletAuthMessage && (
+                  <div className="w-full max-h-28 overflow-y-auto rounded-lg border border-gray-600 bg-gray-900/50 p-3">
+                    <p className="text-xs text-gray-500 mb-1">You will be asked to sign a message like:</p>
+                    <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">{walletAuthMessage}</p>
+                  </div>
+                )}
                 {displayError && (
                   <div className="p-3 bg-red-900/30 border border-red-700 rounded-lg text-sm text-red-300">
                     {displayError}
