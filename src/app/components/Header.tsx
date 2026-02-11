@@ -64,7 +64,6 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
     isLoading: isAuthLoading,
     error: authError,
     needsRegistration,
-    signMessage,
     login,
     register,
     cancelRegistration,
@@ -435,12 +434,6 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
                 <p className="text-gray-300 text-sm text-center">
                   Verifying your wallet ownership...
                 </p>
-                {signMessage && (
-                  <div className="w-full max-h-32 overflow-y-auto rounded-lg border border-gray-600 bg-gray-900/50 p-3">
-                    <p className="text-xs text-gray-500 mb-1">Message from platform (you will sign this in your wallet):</p>
-                    <p className="text-sm text-gray-300 whitespace-pre-wrap break-words">{signMessage}</p>
-                  </div>
-                )}
                 {displayError && (
                   <div className="w-full p-3 bg-red-900/30 border border-red-700 rounded-lg text-sm text-red-300">
                     {displayError}
