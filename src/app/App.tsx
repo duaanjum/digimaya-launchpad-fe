@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/app/hooks/useAuth';
 import { Header } from '@/app/components/Header';
 import { Hero } from '@/app/components/Hero';
@@ -103,6 +103,18 @@ export default function App() {
   const [projectDetailLoading, setProjectDetailLoading] = useState(false);
 
   const { isAuthenticated } = useAuth();
+  const justLandedOnProfileRef = useRef(false);
+
+  // Set grace-period ref immediately on mount if we landed from Google OAuth (flag set), so we never redirect to home before auth is ready
+  useEffect(() => {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('google_oauth_landing')) {
+      justLandedOnProfileRef.current = true;
+      const t = window.setTimeout(() => {
+        justLandedOnProfileRef.current = false;
+      }, 5000);
+      return () => window.clearTimeout(t);
+    }
+  }, []);
 
   useEffect(() => {
     setProjectsLoading(true);
@@ -144,18 +156,13 @@ export default function App() {
     );
   }
 
-  // After Google OAuth redirect: land on profile. Run on mount (with short delay so auth is ready) and when auth becomes true.
+  // After Google OAuth redirect: switch to profile when auth is ready and clear the flag.
   useEffect(() => {
     if (typeof sessionStorage === 'undefined') return;
-    const goToProfile = () => {
-      if (sessionStorage.getItem('google_oauth_landing') && isAuthenticated) {
-        setCurrentView('profile');
-        sessionStorage.removeItem('google_oauth_landing');
-      }
-    };
-    goToProfile();
-    const t = window.setTimeout(goToProfile, 100);
-    return () => window.clearTimeout(t);
+    if (sessionStorage.getItem('google_oauth_landing') && isAuthenticated) {
+      setCurrentView('profile');
+      sessionStorage.removeItem('google_oauth_landing');
+    }
   }, [isAuthenticated]);
 
   const staticLiveProject = projects.find((p) => p.status === 'live');
@@ -199,8 +206,9 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Navigate home when user logs out while on profile
+  // Navigate home when user logs out while on profile (skip during grace period after OAuth landing to avoid 401 bounce)
   useEffect(() => {
+    if (justLandedOnProfileRef.current) return;
     if (!isAuthenticated && currentView === 'profile') {
       setCurrentView('home');
     }
