@@ -139,15 +139,15 @@ export default function App() {
     );
   }
 
-  // After any login (Google or wallet), open profile: ensure profile when we have the Google landing flag
+  // After Google OAuth redirect: land on profile. Run on mount and when auth/flag changes.
   useEffect(() => {
     if (typeof sessionStorage === 'undefined') return;
-    if (sessionStorage.getItem('google_oauth_landing') && currentView !== 'profile') {
+    if (sessionStorage.getItem('google_oauth_landing') && isAuthenticated) {
       setCurrentView('profile');
     }
-  }, [currentView]);
+  }, [isAuthenticated]);
 
-  // Clear Google OAuth landing flag after showing profile once
+  // Clear Google OAuth landing flag after we've switched to profile
   useEffect(() => {
     if (currentView === 'profile') sessionStorage.removeItem('google_oauth_landing');
   }, [currentView]);
