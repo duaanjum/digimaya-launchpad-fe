@@ -1,9 +1,9 @@
-import { Project } from '@/app/data/projects';
+import type { DashboardProject } from '@/app/data/projects';
 import { Progress } from '@/app/components/ui/progress';
 import { Wallet, CreditCard, Coins } from 'lucide-react';
 
 interface LiveSaleProps {
-  project: Project;
+  project: DashboardProject;
   onViewDetails: (projectId: string) => void;
 }
 
@@ -56,12 +56,12 @@ export function LiveSale({ project, onViewDetails }: LiveSaleProps) {
                         Raised
                       </span>
                       <span className="text-sm font-maven-pro text-white">
-                        {project.raised} / {project.hardCap}
+                        {project.raised ?? '—'} / {project.hardCap ?? '—'}
                       </span>
                     </div>
-                    <Progress value={project.progress} className="h-3 mb-1" />
+                    <Progress value={project.progress ?? 0} className="h-3 mb-1" />
                     <p className="text-xs text-gray-400 font-maven-pro">
-                      {project.progress}% of Hard Cap
+                      {project.progress ?? 0}% of Hard Cap
                     </p>
                   </div>
 
@@ -70,13 +70,13 @@ export function LiveSale({ project, onViewDetails }: LiveSaleProps) {
                       <p className="text-xs text-gray-400 mb-1">
                         Soft Cap
                       </p>
-                      <p className="text-lg font-maven-pro text-white">{project.softCap}</p>
+                      <p className="text-lg font-maven-pro text-white">{project.softCap ?? '—'}</p>
                     </div>
                     <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                       <p className="text-xs text-gray-400 mb-1">
                         Hard Cap
                       </p>
-                      <p className="text-lg font-maven-pro text-white">{project.hardCap}</p>
+                      <p className="text-lg font-maven-pro text-white">{project.hardCap ?? '—'}</p>
                     </div>
                     <div className="bg-gray-800 p-4 rounded-lg border border-gray-700">
                       <p className="text-xs text-gray-400 mb-1">
@@ -88,7 +88,7 @@ export function LiveSale({ project, onViewDetails }: LiveSaleProps) {
                       <p className="text-xs text-gray-400 mb-1">
                         Sale Ends
                       </p>
-                      <p className="text-sm font-maven-pro text-white">{project.saleEnd}</p>
+                      <p className="text-sm font-maven-pro text-white">{project.saleEnd ?? '—'}</p>
                     </div>
                   </div>
 
@@ -97,7 +97,7 @@ export function LiveSale({ project, onViewDetails }: LiveSaleProps) {
                       Accepted Payments
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {project.acceptedPayments.map((payment) => (
+                      {(project.acceptedPayments ?? []).map((payment) => (
                         <div
                           key={payment}
                           className="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg"

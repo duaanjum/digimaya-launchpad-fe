@@ -4,6 +4,25 @@ import punnooseImage from 'figma:asset/ec4a088973996e851ddd7e055d494e2632d67894.
 import garimaImage from 'figma:asset/48eeda1673981f82ebb957a0e1c018d147133294.png';
 import digimayaLogo from 'figma:asset/875cae2f20c002d2f45cd08d3c927dde653b100b.png';
 
+/** Minimal project shape for dashboard list (Live / Upcoming / Past). From API or static. */
+export interface DashboardProject {
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  logo: string;
+  status: 'live' | 'upcoming' | 'completed';
+  tokenPrice: string;
+  softCap?: string;
+  hardCap?: string;
+  raised?: string;
+  progress?: number;
+  acceptedPayments?: string[];
+  saleStart?: string;
+  saleEnd?: string;
+  roi?: string;
+}
+
 export interface Project {
   id: string;
   name: string;

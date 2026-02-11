@@ -12,7 +12,9 @@ import {
   authApi,
   storage,
   setOnAuthError,
+  ApiError,
   RegistrationRequiredError,
+  GOOGLE_OAUTH_ERROR_STORAGE_KEY,
   type UserData,
 } from '@/app/lib/api';
 
@@ -73,6 +75,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const authedAddressRef = useRef<string | undefined>(undefined);
 
   // -----------------------------------------------------------------------
+  // Show Google OAuth error if we landed after error=google_auth_failed redirect
+  // -----------------------------------------------------------------------
+  useEffect(() => {
+    const message = sessionStorage.getItem(GOOGLE_OAUTH_ERROR_STORAGE_KEY);
+    if (message) {
+      setError(message);
+      sessionStorage.removeItem(GOOGLE_OAUTH_ERROR_STORAGE_KEY);
+      sessionStorage.setItem('open_login_dialog_for_error', '1');
+    }
+  }, []);
+
+  // -----------------------------------------------------------------------
   // Register global 401 handler
   // -----------------------------------------------------------------------
   useEffect(() => {
@@ -112,9 +126,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [isConnected, isAuthenticated]);
 
   // -----------------------------------------------------------------------
-  // Login: nonce → sign → signin
+  // Login: full flow — register first, then verify if 409 (Step 1–5)
   // -----------------------------------------------------------------------
   const login = useCallback(async () => {
+    // Step 1: Wallet address + signer (wagmi gives address; signMessageAsync = signer.signMessage)
     if (!address) {
       setError('Please connect your wallet first.');
       return;
@@ -123,53 +138,61 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     setNeedsRegistration(false);
-    setPendingSignature(null);
 
     try {
-      // Step 1: Get nonce
+      // Step 2: Get nonce + message from backend (POST /api/v1/wallet-auth/nonce)
       const nonceData = await authApi.getNonce(address);
+      const message = nonceData.message; // exact string from API – do not change
 
-      // Step 2: Sign the message
-      const signature = await signMessageAsync({ message: nonceData.message });
+      // Step 3: Get signature from wallet (user signs in wallet popup)
+      // signMessageAsync(message) is the only way to "get" the signature – wallet returns hex string
+      const signature = await signMessageAsync({ message });
 
-      // Step 3: Attempt signin
-      try {
-        const userData = await authApi.signIn({
-          walletAddress: address,
-          signature,
-          message: nonceData.message,
-        });
+      // Step 4: Register first – body ONLY walletAddress + signature (no message, no nonce)
+      const userData = await authApi.register({
+        walletAddress: address,
+        signature,
+      }).catch(async (err) => {
+        if (err instanceof ApiError && err.status === 409) {
+          // Step 5: 409 = already registered → verify with same walletAddress + signature
+          return authApi.verifyWallet(address, signature);
+        }
+        if (err instanceof ApiError && err.status === 400) {
+          const body = err.body as { message?: unknown } | undefined;
+          const bodyMsg = body?.message;
+          const msg = bodyMsg != null
+            ? (Array.isArray(bodyMsg) ? bodyMsg.join(' ') : String(bodyMsg))
+            : err.message;
+          if (import.meta.env.DEV && body) {
+            console.error('[auth] Register 400 response:', body);
+          }
+          setError(msg || 'No pending registration or expired. Please request a new nonce.');
+          return null;
+        }
+        throw err;
+      });
 
-        // Success: store JWT and user data
+      if (userData) {
         storage.setToken(userData.token);
         storage.setUser(userData);
         setUser(userData);
         authedAddressRef.current = address;
-      } catch (err) {
-        if (err instanceof RegistrationRequiredError) {
-          // User needs to register — store the signature for the registration step
-          setPendingSignature({
-            signature,
-            message: nonceData.message,
-            walletAddress: address,
-          });
-          setNeedsRegistration(true);
-        } else {
-          throw err;
-        }
       }
     } catch (err) {
-      if (err instanceof RegistrationRequiredError) {
-        // Already handled above
-      } else {
-        const message =
-          err instanceof Error
-            ? err.message.includes('rejected') || err.message.includes('denied')
-              ? 'Signature rejected. Please try again.'
-              : err.message
-            : 'Authentication failed. Please try again.';
-        setError(message);
+      setIsLoading(false);
+      let message = 'Authentication failed. Please try again.';
+      if (err instanceof ApiError) {
+        const bodyMsg = (err.body as { message?: unknown })?.message;
+        message = bodyMsg != null
+          ? (Array.isArray(bodyMsg) ? bodyMsg.join(' ') : String(bodyMsg))
+          : err.message;
+      } else if (err instanceof Error) {
+        message =
+          err.message.includes('rejected') || err.message.includes('denied')
+            ? 'Signature rejected. Please try again.'
+            : err.message;
       }
+      setError(message);
     } finally {
       setIsLoading(false);
     }
@@ -181,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(
     async (email?: string, userName?: string) => {
       if (!pendingSignature) {
-        setError('No pending registration. Please start again.');
+        setError('No pending registration request. Please request a new nonce.');
         return;
       }
 

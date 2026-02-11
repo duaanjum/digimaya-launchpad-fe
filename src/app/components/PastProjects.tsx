@@ -1,8 +1,8 @@
-import { Project } from '@/app/data/projects';
+import type { DashboardProject } from '@/app/data/projects';
 import { CheckCircle } from 'lucide-react';
 
 interface PastProjectsProps {
-  projects: Project[];
+  projects: DashboardProject[];
   onViewDetails: (projectId: string) => void;
 }
 
@@ -17,6 +17,11 @@ export function PastProjects({ projects, onViewDetails }: PastProjectsProps) {
           </p>
         </div>
 
+        {projects.length === 0 ? (
+          <div className="text-center text-gray-400 py-12">
+            No past projects
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
             <div
@@ -99,6 +104,7 @@ export function PastProjects({ projects, onViewDetails }: PastProjectsProps) {
             </div>
           ))}
         </div>
+        )}
       </div>
     </section>
   );

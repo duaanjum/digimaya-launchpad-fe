@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { Project } from '@/app/data/projects';
-import { ChevronLeft, ChevronRight, Calendar, Tag } from 'lucide-react';
+import type { DashboardProject } from '@/app/data/projects';
+import { Calendar, Tag } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/app/components/ui/dialog';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 
 interface UpcomingSalesProps {
-  projects: Project[];
+  projects: DashboardProject[];
 }
 
 export function UpcomingSales({ projects }: UpcomingSalesProps) {
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [selectedProject, setSelectedProject] = useState<DashboardProject | null>(null);
   const [intendedAmount, setIntendedAmount] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleInterestClick = (project: Project) => {
+  const handleInterestClick = (project: DashboardProject) => {
     setSelectedProject(project);
     setIsModalOpen(true);
   };
@@ -41,6 +41,11 @@ export function UpcomingSales({ projects }: UpcomingSalesProps) {
           </div>
 
           <div className="relative">
+            {projects.length === 0 ? (
+              <div className="text-center text-gray-400 py-12">
+                No upcoming project
+              </div>
+            ) : (
             <div className="overflow-x-auto pb-4 hide-scrollbar">
               <div className="flex gap-6" style={{ minWidth: 'min-content' }}>
                 {projects.map((project) => (
@@ -107,6 +112,7 @@ export function UpcomingSales({ projects }: UpcomingSalesProps) {
                 ))}
               </div>
             </div>
+            )}
           </div>
         </div>
       </section>
