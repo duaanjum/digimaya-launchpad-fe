@@ -86,7 +86,12 @@ function mapApiProjectToDashboard(
 }
 
 export default function App() {
-  const [currentView, setCurrentView] = useState<View>(INITIAL_VIEW);
+  const [currentView, setCurrentView] = useState<View>(() => {
+    if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('google_oauth_landing')) {
+      return 'profile';
+    }
+    return INITIAL_VIEW;
+  });
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   const [liveProjects, setLiveProjects] = useState<DashboardProject[]>([]);
@@ -139,18 +144,19 @@ export default function App() {
     );
   }
 
-  // After Google OAuth redirect: land on profile. Run on mount and when auth/flag changes.
+  // After Google OAuth redirect: land on profile. Run on mount (with short delay so auth is ready) and when auth becomes true.
   useEffect(() => {
     if (typeof sessionStorage === 'undefined') return;
-    if (sessionStorage.getItem('google_oauth_landing') && isAuthenticated) {
-      setCurrentView('profile');
-    }
+    const goToProfile = () => {
+      if (sessionStorage.getItem('google_oauth_landing') && isAuthenticated) {
+        setCurrentView('profile');
+        sessionStorage.removeItem('google_oauth_landing');
+      }
+    };
+    goToProfile();
+    const t = window.setTimeout(goToProfile, 100);
+    return () => window.clearTimeout(t);
   }, [isAuthenticated]);
-
-  // Clear Google OAuth landing flag after we've switched to profile
-  useEffect(() => {
-    if (currentView === 'profile') sessionStorage.removeItem('google_oauth_landing');
-  }, [currentView]);
 
   const staticLiveProject = projects.find((p) => p.status === 'live');
   const liveProject =

@@ -593,27 +593,32 @@ const GOOGLE_OAUTH_ERROR_KEY = 'google_oauth_error_message';
  */
 export function handleGoogleOAuthCallback(): boolean {
   if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
+  // Support both query (?access_token=) and hash (#access_token=) – some backends use hash
+  const search = window.location.search || '';
+  const hash = window.location.hash ? window.location.hash.slice(1) : '';
+  const params = new URLSearchParams(search || hash);
 
   const errorCode = params.get('error');
   if (errorCode === 'google_auth_failed') {
     const message = params.get('message') ?? params.get('error_description') ?? 'Google sign-in failed.';
     sessionStorage.setItem(GOOGLE_OAUTH_ERROR_KEY, message);
-    window.location.replace(window.location.origin);
+    window.location.replace(window.location.origin + window.location.pathname);
     return true;
   }
 
-  const accessToken = params.get('access_token') ?? params.get('accessToken');
+  const accessToken =
+    params.get('access_token') ?? params.get('accessToken') ?? params.get('token');
   if (!accessToken) return false;
 
   storage.setToken(accessToken);
-  const refreshToken = params.get('refresh_token') ?? params.get('refresh_token');
+  const refreshToken =
+    params.get('refresh_token') ?? params.get('refresh_token') ?? params.get('refreshToken');
   const userData = storage.userFromAccessToken(accessToken);
   if (refreshToken) userData.refreshToken = refreshToken;
   storage.setUser(userData);
 
   sessionStorage.setItem('google_oauth_landing', '1');
-  window.location.replace(window.location.origin);
+  window.location.replace(window.location.origin + window.location.pathname);
   return true;
 }
 
