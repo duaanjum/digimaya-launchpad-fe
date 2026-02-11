@@ -35,6 +35,8 @@ export interface AuthContextValue {
   needsRegistration: boolean;
   /** Temporarily stored signature+message for registration flow */
   pendingSignature: { signature: string; message: string; walletAddress: string } | null;
+  /** Message from backend (WALLET_AUTH_MESSAGE) shown while user is signing – set during login flow */
+  signMessage: string | null;
 
   /** Start the SIWE login flow (nonce → sign → signin) */
   login: () => Promise<void>;
@@ -64,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     message: string;
     walletAddress: string;
   } | null>(null);
+  const [signMessage, setSignMessage] = useState<string | null>(null);
 
   const { address, isConnected } = useAccount();
   const { disconnect } = useDisconnect();
@@ -140,9 +143,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setNeedsRegistration(false);
 
     try {
+      setSignMessage(null);
       // Step 2: Get nonce + message from backend (POST /api/v1/wallet-auth/nonce)
       const nonceData = await authApi.getNonce(address);
-      const message = nonceData.message; // exact string from API – do not change
+      const message = nonceData.message; // exact string from API (backend uses WALLET_AUTH_MESSAGE)
+      setSignMessage(message);
 
       // Step 3: Get signature from wallet (user signs in wallet popup)
       // signMessageAsync(message) is the only way to "get" the signature – wallet returns hex string
@@ -178,8 +183,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(userData);
         authedAddressRef.current = address;
       }
+      setSignMessage(null);
     } catch (err) {
       setIsLoading(false);
+      setSignMessage(null);
       let message = 'Authentication failed. Please try again.';
       if (err instanceof ApiError) {
         const bodyMsg = (err.body as { message?: unknown })?.message;
@@ -195,6 +202,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setError(message);
     } finally {
       setIsLoading(false);
+      setSignMessage(null);
     }
   }, [address, signMessageAsync]);
 
@@ -275,6 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       needsRegistration,
       pendingSignature,
+      signMessage,
       login,
       register,
       cancelRegistration,
@@ -288,6 +297,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       needsRegistration,
       pendingSignature,
+      signMessage,
       login,
       register,
       cancelRegistration,
