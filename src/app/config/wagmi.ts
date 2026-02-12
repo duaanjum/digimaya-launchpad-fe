@@ -12,10 +12,8 @@ import {
 import { injected, walletConnect } from 'wagmi/connectors';
 import { getInjectedProviders } from './injectedProviders';
 
-/**
- * Use the SAME WalletConnect projectId you already had.
- */
-const WALLETCONNECT_PROJECT_ID = '<YOUR_EXISTING_WALLETCONNECT_PROJECT_ID>'; // <- replace
+// WalletConnect v2 project ID (from your previous working config)
+const WALLETCONNECT_PROJECT_ID = 'ae5186bbbb73fa7d14da24db2987de92';
 
 export const chains = [
   mainnet,
