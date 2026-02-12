@@ -453,11 +453,14 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
 
   <div className="space-y-2">
     {(() => {
-      const walletConnectConnector = connectors.find((c) => c.id === 'walletConnect');
-      const metaMaskConnector = connectors.find((c) => c.id === 'metaMask');
-      const gateConnector = connectors.find((c) => c.id === 'gateWallet');
-
-      const hasAnyInjected = metaMaskConnector || gateConnector;
+      // Detect connectors by name so MetaMask / Gate Wallet
+      // always get their own visible buttons, regardless of
+      // the underlying connector `id` used by wagmi.
+      const walletConnectConnector = connectors.find(
+        (c) => c.id === 'walletConnect' || c.name === 'WalletConnect',
+      );
+      const metaMaskConnector = connectors.find((c) => c.name === 'MetaMask');
+      const gateConnector = connectors.find((c) => c.name === 'Gate Wallet');
 
       const handleClick = (connectorId: string) => {
         const connector = connectors.find((c) => c.id === connectorId);
@@ -543,7 +546,7 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
                     disabled={connectingId !== null || isAuthLoading}
                     className="w-full flex items-center justify-center gap-3 p-4 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <GoogleIcon className="w-5 h-5" viewBox="0 0 24 24" style={{ color: '#000000' }} />
+                    <GoogleIcon className="w-5 h-5" viewBox="0 0 24 24"  />
                     <span className=" text-gray-900 font-maven-pro">Google</span>
                   </button>
                 </div>
