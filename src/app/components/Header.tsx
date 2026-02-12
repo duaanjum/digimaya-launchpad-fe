@@ -458,11 +458,7 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
       const gateConnector = connectors.find((c) => c.id === 'gateWallet');
       const walletConnectConnector = connectors.find((c) => c.id === 'walletConnect');
 
-      const knownIds = new Set(['metaMask', 'braveWallet', 'gateWallet', 'walletConnect', 'injected']);
-      const otherConnectors = visibleConnectors.filter((c) => !knownIds.has(c.id));
-
-      const hasAnyInjected =
-        metaMaskConnector || braveConnector || gateConnector || otherConnectors.length > 0;
+      const hasAnyInjected = metaMaskConnector || braveConnector || gateConnector;
 
       const handleClick = (connectorId: string) => {
         const connector = connectors.find((c) => c.id === connectorId);
@@ -520,7 +516,7 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {/* Brave Wallet */}
+          {/* Brave Wallet (optional, when available) */}
           {braveConnector && (
             <button
               key={braveConnector.id}
@@ -536,22 +532,6 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {/* Other injected wallets (e.g. BitGet, Trust Wallet) */}
-          {otherConnectors.map((connector) => (
-            <button
-              key={connector.id}
-              onClick={() => handleClick(connector.id)}
-              disabled={connectingId !== null || isAuthLoading}
-              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">{connector.name}</span>
-              {connectingId === connector.id && (
-                <span className="text-xs text-gray-400">Connecting...</span>
-              )}
-            </button>
-          ))}
-
           {!hasAnyInjected && (
             <div className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300">
               No EVM wallet detected. Please install MetaMask, Brave, or Gate Wallet.
@@ -562,6 +542,32 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
     })()}
   </div>
 </div>
+
+                {/* Divider between wallet options and Google login */}
+                <div className="relative py-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-700" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-gray-900 px-2 text-gray-500">or</span>
+                  </div>
+                </div>
+
+                {/* Login with Google (matches Figma: second section) */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-maven-pro text-gray-300">Login with</h3>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      window.location.href = getGoogleAuthUrl();
+                    }}
+                    disabled={connectingId !== null || isAuthLoading}
+                    className="w-full flex items-center justify-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <GoogleIcon className="w-5 h-5" />
+                    <span className="flex-1 text-left">Google</span>
+                  </button>
+                </div>
 
                 <div className="pt-2">
                   <p className="text-xs text-gray-500 text-center">
