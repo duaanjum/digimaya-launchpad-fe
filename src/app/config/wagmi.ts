@@ -26,6 +26,7 @@ export const chains = [
 ];
 
 export const wagmiConfig = createConfig({
+  autoConnect: false,
   chains,
   connectors: [
     // Generic fallback injected connector (hidden in UI)

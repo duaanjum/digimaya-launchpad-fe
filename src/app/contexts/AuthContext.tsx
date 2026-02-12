@@ -72,6 +72,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { disconnect } = useDisconnect();
   const { signMessageAsync } = useSignMessage();
 
+  const handleDisconnect = useCallback(() => {
+    disconnect();
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        window.localStorage.removeItem('wagmi.store');
+      } catch {
+        // Ignore storage errors (private mode, disabled storage, etc.)
+      }
+    }
+  }, [disconnect]);
+
   const isAuthenticated = !!user && !!storage.getToken();
 
   // Track the address the user authenticated with
@@ -264,8 +275,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setNeedsRegistration(false);
     setPendingSignature(null);
     authedAddressRef.current = undefined;
-    disconnect();
-  }, [disconnect]);
+    handleDisconnect();
+  }, [handleDisconnect]);
 
   // -----------------------------------------------------------------------
   // Clear error
