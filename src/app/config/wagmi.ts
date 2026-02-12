@@ -29,11 +29,6 @@ export const wagmiConfig = createConfig({
   autoConnect: false,
   chains,
   connectors: [
-    // Generic fallback injected connector (hidden in UI)
-    injected({
-      shimDisconnect: true,
-    }),
-
     // MetaMask only
     injected({
       id: 'metaMask',

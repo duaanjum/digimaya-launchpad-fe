@@ -113,10 +113,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // -----------------------------------------------------------------------
   // Auto-logout when wallet address changes after authentication
+  // (wallet-based auth only – keep Google/OAuth sessions independent)
   // -----------------------------------------------------------------------
   useEffect(() => {
     if (
       isAuthenticated &&
+      user?.authMethod === 'wallet' &&
       authedAddressRef.current &&
       address &&
       authedAddressRef.current.toLowerCase() !== address.toLowerCase()
@@ -126,18 +128,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authedAddressRef.current = undefined;
       setError('Wallet changed. Please sign in again.');
     }
-  }, [address, isAuthenticated]);
+  }, [address, isAuthenticated, user?.authMethod]);
 
   // -----------------------------------------------------------------------
   // Clear auth state if wallet disconnects
+  // (wallet-based auth only – do not clear Google/OAuth logins)
   // -----------------------------------------------------------------------
   useEffect(() => {
-    if (!isConnected && isAuthenticated) {
+    if (user?.authMethod === 'wallet' && !isConnected && isAuthenticated) {
       storage.clear();
       setUser(null);
       authedAddressRef.current = undefined;
     }
-  }, [isConnected, isAuthenticated]);
+  }, [isConnected, isAuthenticated, user?.authMethod]);
 
   // -----------------------------------------------------------------------
   // Login: full flow — register first, then verify if 409 (Step 1–5)
