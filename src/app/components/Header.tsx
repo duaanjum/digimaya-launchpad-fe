@@ -458,7 +458,11 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
       const gateConnector = connectors.find((c) => c.id === 'gateWallet');
       const walletConnectConnector = connectors.find((c) => c.id === 'walletConnect');
 
-      const hasAnyInjected = metaMaskConnector || braveConnector || gateConnector;
+      const knownIds = new Set(['metaMask', 'braveWallet', 'gateWallet', 'walletConnect', 'injected']);
+      const otherConnectors = visibleConnectors.filter((c) => !knownIds.has(c.id));
+
+      const hasAnyInjected =
+        metaMaskConnector || braveConnector || gateConnector || otherConnectors.length > 0;
 
       const handleClick = (connectorId: string) => {
         const connector = connectors.find((c) => c.id === connectorId);
@@ -468,36 +472,23 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
 
       return (
         <>
-          {metaMaskConnector && (
+          {/* WalletConnect first (QR code) */}
+          {walletConnectConnector && (
             <button
-              key={metaMaskConnector.id}
-              onClick={() => handleClick(metaMaskConnector.id)}
+              key={walletConnectConnector.id}
+              onClick={() => handleClick(walletConnectConnector.id)}
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">MetaMask</span>
-              {connectingId === metaMaskConnector.id && (
+              <span className="text-white flex-1">WalletConnect</span>
+              {connectingId === walletConnectConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
               )}
             </button>
           )}
 
-          {braveConnector && (
-            <button
-              key={braveConnector.id}
-              onClick={() => handleClick(braveConnector.id)}
-              disabled={connectingId !== null || isAuthLoading}
-              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">Brave Wallet</span>
-              {connectingId === braveConnector.id && (
-                <span className="text-xs text-gray-400">Connecting...</span>
-              )}
-            </button>
-          )}
-
+          {/* Gate Wallet */}
           {gateConnector && (
             <button
               key={gateConnector.id}
@@ -513,34 +504,58 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {!hasAnyInjected && (
-            <div className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300">
-              No EVM wallet detected. Please install MetaMask, Brave, or Gate Wallet.
-            </div>
-          )}
-
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-600" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-gray-900 px-2 text-gray-500">or</span>
-            </div>
-          </div>
-
-          {walletConnectConnector && (
+          {/* MetaMask */}
+          {metaMaskConnector && (
             <button
-              key={walletConnectConnector.id}
-              onClick={() => handleClick(walletConnectConnector.id)}
+              key={metaMaskConnector.id}
+              onClick={() => handleClick(metaMaskConnector.id)}
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">WalletConnect</span>
-              {connectingId === walletConnectConnector.id && (
+              <span className="text-white flex-1">MetaMask</span>
+              {connectingId === metaMaskConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
               )}
             </button>
+          )}
+
+          {/* Brave Wallet */}
+          {braveConnector && (
+            <button
+              key={braveConnector.id}
+              onClick={() => handleClick(braveConnector.id)}
+              disabled={connectingId !== null || isAuthLoading}
+              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
+              <span className="text-white flex-1">Brave Wallet</span>
+              {connectingId === braveConnector.id && (
+                <span className="text-xs text-gray-400">Connecting...</span>
+              )}
+            </button>
+          )}
+
+          {/* Other injected wallets (e.g. BitGet, Trust Wallet) */}
+          {otherConnectors.map((connector) => (
+            <button
+              key={connector.id}
+              onClick={() => handleClick(connector.id)}
+              disabled={connectingId !== null || isAuthLoading}
+              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
+              <span className="text-white flex-1">{connector.name}</span>
+              {connectingId === connector.id && (
+                <span className="text-xs text-gray-400">Connecting...</span>
+              )}
+            </button>
+          ))}
+
+          {!hasAnyInjected && (
+            <div className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300">
+              No EVM wallet detected. Please install MetaMask, Brave, or Gate Wallet.
+            </div>
           )}
         </>
       );
