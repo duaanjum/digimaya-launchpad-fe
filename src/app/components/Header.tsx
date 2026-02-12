@@ -3,7 +3,10 @@ import { useAccount, useConnect } from 'wagmi';
 import { useAuth } from '@/app/hooks/useAuth';
 import { getGoogleAuthUrl } from '@/app/lib/api';
 import digimaayaLogo from 'figma:asset/875cae2f20c002d2f45cd08d3c927dde653b100b.png';
-import { Menu, X, Wallet, User, LogOut, ChevronDown, Loader2 } from 'lucide-react';
+import walletConnectLogo from '@/assets/walletconnect-seeklogo.svg';
+import metamaskLogo from '@/assets/metamask-icon.svg';
+import gateLogo from '@/assets/gate.io-logo.svg';
+import { Menu, X, User, LogOut, ChevronDown, Loader2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -483,7 +486,11 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
+              <img
+                src={walletConnectLogo}
+                alt="WalletConnect logo"
+                className="w-5 h-5"
+              />
               <span className="text-white flex-1">WalletConnect</span>
               {connectingId === walletConnectConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
@@ -499,7 +506,11 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
+              <img
+                src={metamaskLogo}
+                alt="MetaMask logo"
+                className="w-5 h-5"
+              />
               <span className="text-white flex-1">MetaMask</span>
               {connectingId === metaMaskConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
@@ -515,7 +526,11 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
+              <img
+                src={gateLogo}
+                alt="Gate Wallet logo"
+                className="w-5 h-5"
+              />
               <span className="text-white flex-1">Gate Wallet</span>
               {connectingId === gateConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
