@@ -433,9 +433,9 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             /* ------- Wallet Selection ------- */
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl text-white">Connect Wallet</DialogTitle>
+                <DialogTitle className="text-2xl text-white">Login</DialogTitle>
                 <DialogDescription className="text-sm text-gray-400">
-                  Choose a wallet to sign in to SpringBoard
+                Choose your preferred login method
                 </DialogDescription>
               </DialogHeader>
 
@@ -453,12 +453,11 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
 
   <div className="space-y-2">
     {(() => {
-      const metaMaskConnector = connectors.find((c) => c.id === 'metaMask');
-      const braveConnector = connectors.find((c) => c.id === 'braveWallet');
-      const gateConnector = connectors.find((c) => c.id === 'gateWallet');
       const walletConnectConnector = connectors.find((c) => c.id === 'walletConnect');
+      const metaMaskConnector = connectors.find((c) => c.id === 'metaMask');
+      const gateConnector = connectors.find((c) => c.id === 'gateWallet');
 
-      const hasAnyInjected = metaMaskConnector || braveConnector || gateConnector;
+      const hasAnyInjected = metaMaskConnector || gateConnector;
 
       const handleClick = (connectorId: string) => {
         const connector = connectors.find((c) => c.id === connectorId);
@@ -484,22 +483,6 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {/* Gate Wallet */}
-          {gateConnector && (
-            <button
-              key={gateConnector.id}
-              onClick={() => handleClick(gateConnector.id)}
-              disabled={connectingId !== null || isAuthLoading}
-              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">Gate Wallet</span>
-              {connectingId === gateConnector.id && (
-                <span className="text-xs text-gray-400">Connecting...</span>
-              )}
-            </button>
-          )}
-
           {/* MetaMask */}
           {metaMaskConnector && (
             <button
@@ -516,27 +499,23 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {/* Brave Wallet (optional, when available) */}
-          {braveConnector && (
+          {/* Gate Wallet */}
+          {gateConnector && (
             <button
-              key={braveConnector.id}
-              onClick={() => handleClick(braveConnector.id)}
+              key={gateConnector.id}
+              onClick={() => handleClick(gateConnector.id)}
               disabled={connectingId !== null || isAuthLoading}
               className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Wallet className="w-5 h-5" style={{ color: '#E3107A' }} />
-              <span className="text-white flex-1">Brave Wallet</span>
-              {connectingId === braveConnector.id && (
+              <span className="text-white flex-1">Gate Wallet</span>
+              {connectingId === gateConnector.id && (
                 <span className="text-xs text-gray-400">Connecting...</span>
               )}
             </button>
           )}
 
-          {!hasAnyInjected && (
-            <div className="w-full p-3 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300">
-              No EVM wallet detected. Please install MetaMask, Brave, or Gate Wallet.
-            </div>
-          )}
+        
         </>
       );
     })()}
@@ -562,10 +541,10 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
                       window.location.href = getGoogleAuthUrl();
                     }}
                     disabled={connectingId !== null || isAuthLoading}
-                    className="w-full flex items-center justify-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-gray-600 transition-colors text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full flex items-center justify-center gap-3 p-4 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
                   >
-                    <GoogleIcon className="w-5 h-5" />
-                    <span className="flex-1 text-left">Google</span>
+                    <GoogleIcon className="w-5 h-5" viewBox="0 0 24 24" style={{ color: '#000000' }} />
+                    <span className=" text-gray-900 font-maven-pro">Google</span>
                   </button>
                 </div>
 
