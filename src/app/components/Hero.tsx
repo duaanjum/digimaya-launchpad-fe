@@ -37,9 +37,9 @@ export function Hero() {
           The Retail Fundraising Infrastructure for Web3
         </p>
         <p className="text-lg text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
-          SpringBoard is DigiMaaya's official launch and fundraising platform,
-          enabling communities and investors to participate in early-stage Web3
-          projects through a secure, compliant, and user-friendly experience.
+        DigiMaaya SpringBoard is an incubation and acceleration platform powered by AI,
+        designed to help Web2 companies seamlessly pivot into Web3,
+        while empowering Web3 founders to transform bold visions and early-stage ideas into real, scalable products.
         </p>
 
         <SocialLinks className="mb-12" />
