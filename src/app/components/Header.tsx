@@ -15,6 +15,8 @@ import {
 interface HeaderProps {
   onLogoClick?: () => void;
   onViewProfile?: () => void;
+  /** Optional handler for nav links (e.g. switch view before scrolling) */
+  onNavClick?: (href: string) => void;
 }
 
 // Connector IDs to hide (duplicates / internal connectors)
@@ -43,7 +45,7 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
+export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -129,6 +131,12 @@ export function Header({ onLogoClick, onViewProfile }: HeaderProps) {
 
   const handleNavClick = (href: string) => {
     setIsMobileMenuOpen(false);
+    // If parent provided a handler (e.g. to switch view to home), delegate to it
+    if (onNavClick) {
+      onNavClick(href);
+      return;
+    }
+    // Fallback: local smooth scroll within current view
     const element = document.querySelector(href);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });

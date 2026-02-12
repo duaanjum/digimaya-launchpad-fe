@@ -206,6 +206,20 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleNavClick = (href: string) => {
+    // Ensure we are on the home view so the target sections exist,
+    // then scroll to the requested section.
+    setCurrentView('home');
+    setSelectedProjectId(null);
+    // Wait a tick for the home view to render before scrolling
+    window.setTimeout(() => {
+      const element = document.querySelector(href);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  };
+
   // Navigate home when user logs out while on profile (skip during grace period after OAuth landing to avoid 401 bounce)
   useEffect(() => {
     if (justLandedOnProfileRef.current) return;
@@ -223,6 +237,7 @@ export default function App() {
       <Header
         onLogoClick={handleBackToHome}
         onViewProfile={handleViewProfile}
+        onNavClick={handleNavClick}
       />
 
       {currentView === 'home' ? (
