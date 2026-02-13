@@ -504,84 +504,80 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
           )}
 
           {/* MetaMask – always shown; connect if installed, else link to get wallet */}
-          {metaMaskConnector && (
-            <div key={metaMaskConnector.id} className="space-y-1">
-              {hasMetaMask ? (
-                <button
-                  onClick={() => handleClick(metaMaskConnector.id)}
-                  disabled={connectingId !== null || isAuthLoading}
-                  className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+          <div key="metaMask" className="space-y-1">
+            {hasMetaMask && metaMaskConnector ? (
+              <button
+                onClick={() => handleClick(metaMaskConnector.id)}
+                disabled={connectingId !== null || isAuthLoading}
+                className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <img
+                  src={metamaskLogo}
+                  alt="MetaMask logo"
+                  className="w-5 h-5"
+                />
+                <span className="text-white flex-1">MetaMask</span>
+                {connectingId === metaMaskConnector.id && (
+                  <span className="text-xs text-gray-400">Connecting...</span>
+                )}
+              </button>
+            ) : (
+              <a
+                href={METAMASK_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
                   <img
                     src={metamaskLogo}
                     alt="MetaMask logo"
                     className="w-5 h-5"
                   />
                   <span className="text-white flex-1">MetaMask</span>
-                  {connectingId === metaMaskConnector.id && (
-                    <span className="text-xs text-gray-400">Connecting...</span>
-                  )}
-                </button>
-              ) : (
-                <a
-                  href={METAMASK_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={metamaskLogo}
-                      alt="MetaMask logo"
-                      className="w-5 h-5"
-                    />
-                    <span className="text-white flex-1">MetaMask</span>
-                  </div>
-                  <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get MetaMask</span>
-                </a>
-              )}
-            </div>
-          )}
+                </div>
+                <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get MetaMask</span>
+              </a>
+            )}
+          </div>
 
           {/* Gate Wallet – always shown; connect if installed, else link to get wallet */}
-          {gateConnector && (
-            <div key={gateConnector.id} className="space-y-1">
-              {hasGate ? (
-                <button
-                  onClick={() => handleClick(gateConnector.id)}
-                  disabled={connectingId !== null || isAuthLoading}
-                  className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+          <div key="gateWallet" className="space-y-1">
+            {hasGate && gateConnector ? (
+              <button
+                onClick={() => handleClick(gateConnector.id)}
+                disabled={connectingId !== null || isAuthLoading}
+                className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <img
+                  src={gateLogo}
+                  alt="Gate Wallet logo"
+                  className="w-5 h-5"
+                />
+                <span className="text-white flex-1">Gate Wallet</span>
+                {connectingId === gateConnector.id && (
+                  <span className="text-xs text-gray-400">Connecting...</span>
+                )}
+              </button>
+            ) : (
+              <a
+                href={GATE_WALLET_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
+              >
+                <div className="flex items-center gap-3">
                   <img
                     src={gateLogo}
                     alt="Gate Wallet logo"
                     className="w-5 h-5"
                   />
                   <span className="text-white flex-1">Gate Wallet</span>
-                  {connectingId === gateConnector.id && (
-                    <span className="text-xs text-gray-400">Connecting...</span>
-                  )}
-                </button>
-              ) : (
-                <a
-                  href={GATE_WALLET_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <img
-                      src={gateLogo}
-                      alt="Gate Wallet logo"
-                      className="w-5 h-5"
-                    />
-                    <span className="text-white flex-1">Gate Wallet</span>
-                  </div>
-                  <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get Gate Wallet</span>
-                </a>
-              )}
-            </div>
-          )}
+                </div>
+                <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get Gate Wallet</span>
+              </a>
+            )}
+          </div>
         </>
       );
     })()}
