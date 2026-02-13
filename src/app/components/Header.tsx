@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAccount, useConnect } from 'wagmi';
 import { useAuth } from '@/app/hooks/useAuth';
 import { getGoogleAuthUrl } from '@/app/lib/api';
+import { getInjectedProviders } from '@/app/config/injectedProviders';
 import digimaayaLogo from 'figma:asset/875cae2f20c002d2f45cd08d3c927dde653b100b.png';
 import walletConnectLogo from '@/assets/walletconnect-seeklogo.svg';
 import metamaskLogo from '@/assets/metamask-icon.svg';
@@ -461,14 +462,18 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
 
   <div className="space-y-2">
     {(() => {
-      // Detect connectors by name so MetaMask / Gate Wallet
-      // always get their own visible buttons, regardless of
-      // the underlying connector `id` used by wagmi.
+      // Always show: WalletConnect, MetaMask, Gate Wallet. If extension missing, show "Don't have an account?" link.
       const walletConnectConnector = connectors.find(
         (c) => c.id === 'walletConnect' || c.name === 'WalletConnect',
       );
       const metaMaskConnector = connectors.find((c) => c.name === 'MetaMask');
       const gateConnector = connectors.find((c) => c.name === 'Gate Wallet');
+      const providers = getInjectedProviders();
+      const hasMetaMask = !!providers.metaMask;
+      const hasGate = !!providers.gate;
+
+      const METAMASK_URL = 'https://metamask.io';
+      const GATE_WALLET_URL = 'https://www.gate.io/web3';
 
       const handleClick = (connectorId: string) => {
         const connector = connectors.find((c) => c.id === connectorId);
@@ -478,7 +483,7 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
 
       return (
         <>
-          {/* WalletConnect first (QR code) */}
+          {/* WalletConnect – always shown (QR + full wallet list) */}
           {walletConnectConnector && (
             <button
               key={walletConnectConnector.id}
@@ -498,47 +503,85 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
             </button>
           )}
 
-          {/* MetaMask */}
+          {/* MetaMask – always shown; connect if installed, else link to get wallet */}
           {metaMaskConnector && (
-            <button
-              key={metaMaskConnector.id}
-              onClick={() => handleClick(metaMaskConnector.id)}
-              disabled={connectingId !== null || isAuthLoading}
-              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <img
-                src={metamaskLogo}
-                alt="MetaMask logo"
-                className="w-5 h-5"
-              />
-              <span className="text-white flex-1">MetaMask</span>
-              {connectingId === metaMaskConnector.id && (
-                <span className="text-xs text-gray-400">Connecting...</span>
+            <div key={metaMaskConnector.id} className="space-y-1">
+              {hasMetaMask ? (
+                <button
+                  onClick={() => handleClick(metaMaskConnector.id)}
+                  disabled={connectingId !== null || isAuthLoading}
+                  className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <img
+                    src={metamaskLogo}
+                    alt="MetaMask logo"
+                    className="w-5 h-5"
+                  />
+                  <span className="text-white flex-1">MetaMask</span>
+                  {connectingId === metaMaskConnector.id && (
+                    <span className="text-xs text-gray-400">Connecting...</span>
+                  )}
+                </button>
+              ) : (
+                <a
+                  href={METAMASK_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={metamaskLogo}
+                      alt="MetaMask logo"
+                      className="w-5 h-5"
+                    />
+                    <span className="text-white flex-1">MetaMask</span>
+                  </div>
+                  <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get MetaMask</span>
+                </a>
               )}
-            </button>
+            </div>
           )}
 
-          {/* Gate Wallet */}
+          {/* Gate Wallet – always shown; connect if installed, else link to get wallet */}
           {gateConnector && (
-            <button
-              key={gateConnector.id}
-              onClick={() => handleClick(gateConnector.id)}
-              disabled={connectingId !== null || isAuthLoading}
-              className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <img
-                src={gateLogo}
-                alt="Gate Wallet logo"
-                className="w-5 h-5"
-              />
-              <span className="text-white flex-1">Gate Wallet</span>
-              {connectingId === gateConnector.id && (
-                <span className="text-xs text-gray-400">Connecting...</span>
+            <div key={gateConnector.id} className="space-y-1">
+              {hasGate ? (
+                <button
+                  onClick={() => handleClick(gateConnector.id)}
+                  disabled={connectingId !== null || isAuthLoading}
+                  className="w-full flex items-center gap-3 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <img
+                    src={gateLogo}
+                    alt="Gate Wallet logo"
+                    className="w-5 h-5"
+                  />
+                  <span className="text-white flex-1">Gate Wallet</span>
+                  {connectingId === gateConnector.id && (
+                    <span className="text-xs text-gray-400">Connecting...</span>
+                  )}
+                </button>
+              ) : (
+                <a
+                  href={GATE_WALLET_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex flex-col gap-1 p-4 bg-gray-800 border border-gray-700 rounded-lg hover:border-primary transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={gateLogo}
+                      alt="Gate Wallet logo"
+                      className="w-5 h-5"
+                    />
+                    <span className="text-white flex-1">Gate Wallet</span>
+                  </div>
+                  <span className="text-xs text-primary pl-8">Don&apos;t have an account? Get Gate Wallet</span>
+                </a>
               )}
-            </button>
+            </div>
           )}
-
-        
         </>
       );
     })()}

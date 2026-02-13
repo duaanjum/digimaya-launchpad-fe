@@ -29,7 +29,7 @@ export const wagmiConfig = createConfig({
   autoConnect: false,
   chains,
   connectors: [
-    // MetaMask only
+    // MetaMask only (no other injected wallets – others use WalletConnect QR)
     injected({
       id: 'metaMask',
       name: 'MetaMask',
@@ -38,18 +38,6 @@ export const wagmiConfig = createConfig({
         if (typeof window === 'undefined') return;
         const { metaMask } = getInjectedProviders();
         return metaMask;
-      },
-    }),
-
-    // Brave Wallet only
-    injected({
-      id: 'braveWallet',
-      name: 'Brave Wallet',
-      shimDisconnect: true,
-      target() {
-        if (typeof window === 'undefined') return;
-        const { brave } = getInjectedProviders();
-        return brave;
       },
     }),
 
