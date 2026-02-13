@@ -455,7 +455,7 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
                   </div>
                 )}
 
-<div>
+<div data-wallet-options="walletconnect-metamask-gate">
   <h3 className="text-sm font-maven-pro text-gray-300 mb-3">
     Connect with Wallet
   </h3>
@@ -468,9 +468,15 @@ export function Header({ onLogoClick, onViewProfile, onNavClick }: HeaderProps) 
       );
       const metaMaskConnector = connectors.find((c) => c.name === 'MetaMask');
       const gateConnector = connectors.find((c) => c.name === 'Gate Wallet');
-      const providers = getInjectedProviders();
-      const hasMetaMask = !!providers.metaMask;
-      const hasGate = !!providers.gate;
+      let hasMetaMask = false;
+      let hasGate = false;
+      try {
+        const providers = getInjectedProviders();
+        hasMetaMask = !!providers?.metaMask;
+        hasGate = !!providers?.gate;
+      } catch {
+        // e.g. SSR or missing window – show "Get wallet" links
+      }
 
       const METAMASK_URL = 'https://metamask.io';
       const GATE_WALLET_URL = 'https://www.gate.io/web3';
